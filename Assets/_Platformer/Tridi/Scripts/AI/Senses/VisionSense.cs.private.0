@@ -1,0 +1,38 @@
+using System;
+using System.Linq;
+using UnityEngine;
+
+namespace Tridi.AI
+{
+    [Serializable]
+    public class VisionSense
+    {
+        [SerializeField] private Transform center;
+        [SerializeField] private float distance;
+
+        public Transform Center => center;
+        public float Distance => distance; 
+        
+        public T See<T>(string tag) where T : MonoBehaviour
+        {
+            return See<T>(tag, -1);
+        }
+        
+        public T See<T>(string tag, LayerMask layer) where T : MonoBehaviour
+        {
+            var hits = Physics2D.CircleCastAll(center.position, distance, Vector2.up, 0.01f, layer);
+            
+            try
+            {
+                var hit = hits.First(hit =>
+                    hit.collider.GetComponent<T>() != null && hit.collider.gameObject.CompareTag(tag));
+                
+                return hit.collider.GetComponent<T>();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+}

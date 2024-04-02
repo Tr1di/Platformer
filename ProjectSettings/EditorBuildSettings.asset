@@ -1,0 +1,14 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Platformer/Tridi/Scenes/MainMenu.unity
+    guid: 5ab60cc95fad04a419f299ca0df174cb
+  - enabled: 1
+    path: Assets/_Platformer/Tridi/Scenes/Null.unity
+    guid: 06340ca292dfda94ab488faa89e1d980
+  m_configObjects: {}

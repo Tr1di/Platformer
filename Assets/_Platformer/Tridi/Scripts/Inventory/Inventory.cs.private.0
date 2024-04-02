@@ -1,0 +1,53 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace Tridi
+{
+    public class Inventory : MonoBehaviour
+    {
+        [SerializeField] private List<Item> items;
+        [SerializeField] private int capacity;
+    
+        public List<Item> Items => items;
+
+        public bool CanPickup(Item item)
+        {
+            return items.Count + 1 <= capacity;
+        }
+    
+        public void PickUp(Item item)
+        {
+            var stored = items.Find(x => x == item && !x.IsFull);
+        
+            if (stored)
+            {
+                var oldAmount = stored.Amount;
+                stored.Amount += item.Amount;
+                var delta = stored.Amount - oldAmount;
+                item.Amount -= delta;
+            }
+
+            if (item.Amount > 0 && CanPickup(item))
+            {
+                items.Add(Instantiate(item));
+                item.Amount = 0;
+            }
+
+            if (item.Amount == 0)
+            {
+                item.PickedUp(this);
+            }
+        }
+
+        public T Get<T>() where T : Item
+        {
+            return (T)items.First(x => x is T);
+        }
+
+        public IList<T> GetAll<T>() where T : Item
+        {
+            return items.OfType<T>().ToList();
+        }
+    }
+}

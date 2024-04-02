@@ -1,0 +1,81 @@
+using Cinemachine;
+using Tridi;
+using UnityEditor;
+using UnityEngine;
+
+[DisallowMultipleComponent]
+public class PlayerController : MonoBehaviour
+{
+    [SerializeField] private Character character;
+    [SerializeField] private CinemachineVirtualCamera virtualCamera;
+
+    private InputManager _inputManager;
+    
+    private void InitInputManager()
+    {
+        if (_inputManager) return;
+            
+        var go = new GameObject("InputManager");
+        go.transform.SetParent(gameObject.transform);
+        _inputManager = go.AddComponent<InputManager>();
+    }
+
+    private Character Character
+    {
+        get => character;
+        set
+        {
+            if (character)
+            {
+                virtualCamera.Follow = null;
+                virtualCamera.LookAt = null;
+                character.InputManager = null;
+            }
+
+            character = value;
+
+            if (character)
+            {
+                virtualCamera.Follow = character.transform;
+                virtualCamera.LookAt = character.transform;
+                character.InputManager = _inputManager;
+            }
+        }
+    }
+    
+    private void Awake()
+    {
+        InitInputManager();
+    }
+
+    private void OnEnable()
+    {
+        Character = character;
+    }
+
+    private void OnDisable()
+    {
+        Character = null;
+    }
+    
+#region Editor
+#if UNITY_EDITOR
+
+    [MenuItem("Platformer/Add Player Controller")]
+    public static void AddPlayerController()
+    {
+        var go = new GameObject("Player Controller");
+        var controller = go.AddComponent<PlayerController>();
+        Selection.activeGameObject = go;
+    }
+    
+    [MenuItem("Platformer/Add Player Controller", true)]
+    public static bool AddPlayerController_Validate()
+    {
+        return !FindObjectOfType<PlayerController>();
+    }
+    
+#endif
+#endregion
+
+}

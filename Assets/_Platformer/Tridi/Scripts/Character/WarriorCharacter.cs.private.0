@@ -1,0 +1,108 @@
+using System;
+using UnityEngine;
+
+namespace Tridi
+{
+    public class WarriorCharacter : Character
+    {
+        [Serializable]
+        public class HealthAttributes
+        {
+            [SerializeField] public AutoRegenDecorator autoRegen;
+            [SerializeField] public DamageCooldownDecorator damageCooldown;
+        }
+        
+        [Serializable]
+        public class ArmorAttributes
+        {
+            [SerializeField] public AutoRegenDecorator autoRegen;
+            [SerializeField] public FlatDamageDecorator flatDamage;
+            [SerializeField] public DamageCooldownDecorator damageCooldown;
+        }
+        
+        [Header("Warrior")]
+        [SerializeField] private Weapon weapon;
+        [SerializeField] private Interactor interactor;
+        
+        [Space]
+        [SerializeField] private HealthAttributes healthAttributes;
+        [SerializeField] public ArmorDecorator armor;
+        [SerializeField] private ArmorAttributes armorAttributes;
+        
+        private void Start()
+        {
+            DecorateHealth(healthAttributes.damageCooldown);
+            DecorateHealth(healthAttributes.autoRegen);
+            DecorateHealth(armor);
+            
+            DecorateArmor(armorAttributes.autoRegen);
+            DecorateArmor(armorAttributes.flatDamage);
+            DecorateArmor(armorAttributes.damageCooldown);
+        }
+
+        public void DecorateArmor(HealthDecorator decorator)
+        {
+            armor.Decorate(decorator);
+        }
+        
+        protected override void SetupPlayerInput(InputManager inputManager)
+        {
+            base.SetupPlayerInput(inputManager);
+            if (inputManager == null) return;
+            
+            inputManager.onInteract += OnInteract;
+            inputManager.onAttack += Attack;
+        }
+
+        protected override void RemovePlayerInput(InputManager inputManager)
+        {
+            base.RemovePlayerInput(inputManager);
+            if (inputManager == null) return;
+            
+            inputManager.onInteract -= OnInteract;
+            inputManager.onAttack -= Attack;
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            weapon.onAttack += OnAttack;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            weapon.onAttack -= OnAttack;
+        }
+        
+        private void OnInteract()
+        {
+            if (weapon.IsAttacking) return;
+            interactor.Interact();
+        }
+        
+        public void Attack()
+        {
+            if (Movement.IsFalling()) return;
+            weapon.Attack();
+        }
+        
+        private void OnAttack(int counter)
+        {
+            Animator.Attack(counter);
+        }
+
+        protected override void OnMove()
+        {
+            if (weapon.IsAttacking) return;
+            base.OnMove();
+        }
+
+        protected override void OnJump()
+        {
+            if (weapon.IsAttacking) return;
+            base.OnJump();
+        }
+    }
+}
+
